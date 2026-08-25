@@ -22,11 +22,19 @@ Token cost = code read into context + text generated. Minimize both:
 - Read narrow, never whole files. Start from a scanner hit or an entry point and
   read only that region plus its call chain. Loading whole files is how these
   reviews go heavy.
-- Prefer the code graph over reading. If a code graph is available (e.g. codegraph
-  MCP with the repo indexed), get structure from queries instead of file reads:
-  it answers "who calls this", "what does this reach", and "trace source to sink"
-  (including dynamic hops) in one near-zero-token call. This is the single biggest
-  token lever. Fall back to grep + `sed -n` ranges when no graph is present.
+- Use the code graph for structure, not for framework semantics. A code graph
+  (e.g. codegraph MCP with the repo indexed) is the single biggest token lever for
+  "where is X", "who calls this", "what does this reach", and "trace source to sink
+  between two named symbols" (it bridges dynamic hops) in near-zero-token calls.
+  BUT it models symbols, not framework concepts: HTTP routes, decorators, and
+  auth/middleware are usually NOT graph nodes, so a natural-language context query
+  for "routes and auth" returns noise (often the frontend router). For route and
+  auth mapping, use the graph only to get the backend file set, then grep the
+  actual decorators/middleware in those files:
+  `grep -nE '@app\.(get|post|put|delete|patch)|Depends|middleware|Authorization' <file>`.
+  Use codegraph_search/codegraph_files for named symbols and codegraph_trace
+  between two names; do not rely on a prose context query to find the attack surface.
+  Fall back to grep + `sed -n` ranges when no graph is present.
 - Derive, do not re-reason. Severity comes from the class table below, once.
 - Budget and triage (deep mode). Rank entry points by risk, reason the top ones
   first, stop at the budget, and list the rest as scanner-only in the ledger.
@@ -51,9 +59,16 @@ for t in semgrep gitleaks trufflehog osv-scanner trivy checkov pip-audit npm; do
 done; wait
 ```
 Treat BROKEN like MISSING: a degraded layer. If a layer has no working tool, say
-so in the ledger ("secrets: no scanner - recall degraded"). Offer install
-one-liners, do not auto-install: `pipx install semgrep pip-audit checkov`,
+so in the ledger ("secrets: no scanner - recall degraded").
+
+Recommend-and-rerun rule: whenever any tool is MISSING or BROKEN, do NOT block.
+Complete the review with the layers that work, then, at the end, tell the developer
+exactly which layer was degraded, the one-liner to fix it, and that re-running the
+scan afterwards gives full coverage. If every tool is present and working, say
+nothing about installs. Install one-liners (offer, never auto-install):
+`pipx install semgrep pip-audit checkov`,
 `brew install gitleaks trufflehog osv-scanner trivy`.
+For a broken (not missing) tool, recommend a reinstall, e.g. `pipx reinstall semgrep`.
 
 ## Step 1: Mode, scope, budget
 - Quick (default): `git diff HEAD` (fallback `git diff main...HEAD`). Cheap.
@@ -133,8 +148,9 @@ Coverage ledger
 ### [HIGH][Likely] ...  (What confirms it: <the one check>)
 ### [MEDIUM][Needs-verification] ...  (To verify: <exact thing>)
 ```
-End with two lines: the single highest-impact fix, and any degraded layer so the
-developer knows where recall was weak.
+End with: the single highest-impact fix. Then, only if a layer was degraded, one
+line naming it, the install/reinstall one-liner to restore it, and that re-running
+the scan afterwards gives full coverage. If nothing was degraded, omit that line.
 
 ## Step 6: Fix mode (only if asked)
 Change only the lines needed to close the finding, no refactors. Show the diff and
