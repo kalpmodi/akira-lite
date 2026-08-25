@@ -20,8 +20,13 @@ Token cost = code read into context + text generated. Minimize both:
 - Deterministic-first. Scanners are subprocesses and cost zero model tokens. Let
   them find what they can; spend model reasoning only on what they cannot.
 - Read narrow, never whole files. Start from a scanner hit or an entry point and
-  read only that region plus its call chain (`sed -n` ranges, grep, or codegraph
-  if available). Loading whole files is how these reviews go heavy.
+  read only that region plus its call chain. Loading whole files is how these
+  reviews go heavy.
+- Prefer the code graph over reading. If a code graph is available (e.g. codegraph
+  MCP with the repo indexed), get structure from queries instead of file reads:
+  it answers "who calls this", "what does this reach", and "trace source to sink"
+  (including dynamic hops) in one near-zero-token call. This is the single biggest
+  token lever. Fall back to grep + `sed -n` ranges when no graph is present.
 - Derive, do not re-reason. Severity comes from the class table below, once.
 - Budget and triage (deep mode). Rank entry points by risk, reason the top ones
   first, stop at the budget, and list the rest as scanner-only in the ledger.
@@ -29,6 +34,11 @@ Token cost = code read into context + text generated. Minimize both:
   reading to a subagent and keep only its findings, so the driver context stays small.
 - Parallelism cuts time, not tokens: run scanners concurrently, but that only
   speeds wall-clock.
+
+Also check for a code graph: if the codegraph MCP is present and the target repo
+has a `.codegraph/` index (confirm with codegraph_status), use it for pass A and
+pass C below and note "code graph: ok" in the ledger. If absent, offer
+`codegraph init -i` once, then fall back to grep/sed and note "code graph: none".
 
 ## Step 0: Tool inventory (parallel smoke-test, always printed)
 Presence is not enough; a broken tool reports a working layer while producing
@@ -58,17 +68,21 @@ one-liners, do not auto-install: `pipx install semgrep pip-audit checkov`,
 ## Step 2: Engine (passes)
 A. Map surface. List every entry point in scope BY NAME: routes/resolvers,
    queue/event consumers, CLI/cron, file I/O, subprocess/exec, deserializers,
-   template renders, outbound HTTP, auth boundaries, raw SQL. This list is the
-   termination condition for pass F.
+   template renders, outbound HTTP, auth boundaries, raw SQL. With a code graph,
+   query these by name instead of reading files. This list is the termination
+   condition for pass F.
 B. Scan (subprocesses, run in parallel, keep all raw hits):
    `semgrep --config auto --json`, `gitleaks detect`/`trufflehog`,
    `osv-scanner`/`npm audit`/`pip-audit`, `trivy fs`/`checkov`. Scope to changed
    files in quick mode, to the path in deep mode.
 C. Taint. For each entry point (top-ranked first), trace untrusted input source
-   to sink across files. Read only the regions on the path. This finds what
-   scanners cannot.
+   to sink across files. With a code graph, trace source to sink in one call
+   (it bridges dynamic hops grep misses), then read only the bodies on that path;
+   otherwise follow the call chain with grep/sed. This finds what scanners cannot.
 D. Missing-control audit. For each control category (Step 3), ask "is it present
-   on this reachable path?" A missing control is a finding even with no scanner hit.
+   on this reachable path?" With a code graph, list a sensitive sink's callers and
+   check each routes through an auth/ownership guard. A missing control is a
+   finding even with no scanner hit.
 E. Merge and tier. Dedup by file:line + class; assign tier + severity (Step 4).
 F. Completeness gate. Mark every pass-A entry point traced or not-traced by name.
    Loop until the list is exhausted or the budget is hit. Report "N/M traced".
@@ -108,6 +122,7 @@ Severity (derive from class, do not re-reason):
 Coverage ledger
 - Tools:  semgrep BROKEN | gitleaks ok | osv-scanner MISSING | trivy ok
 - Layers: SAST degraded | secrets ok | deps degraded | IaC ok
+- Code graph: ok (used for surface + taint)  |  or: none (grep fallback)
 - Entry points: 18/18 traced   (or 16/18, untraced: worker.py:consume [budget])
 - Files reviewed: <n> | skipped: <list + why> | suppressed: <n>
 

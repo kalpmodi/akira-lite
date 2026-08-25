@@ -40,6 +40,9 @@ plus LLM reasoning only where it is needed) runs at a fraction of the tokens of 
 model reading everything itself. akira-lite keeps it light by:
 
 - letting scanners (subprocesses, zero model tokens) do the bulk of detection,
+- preferring a code graph when available (e.g. codegraph): it answers "who calls
+  this", "what does this reach", and "trace source to sink" as near-zero-token
+  queries instead of file reads, which is the biggest single token saving,
 - reading narrowly (a finding's region and its call chain, never whole files),
 - deriving severity from a class table instead of re-reasoning it,
 - budgeting and triaging deep-mode work by risk, and delegating bulk reads to a
