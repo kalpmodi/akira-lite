@@ -2,97 +2,109 @@
 
 # akira-lite
 
-One skill. A titanium, high-recall security review a developer can actually run.
+One skill: a high-recall, token-light security review a developer can actually run.
+
+`/security-review` your own code before you push. It finds the real, exploitable
+bugs, filters the noise, and hands you the fix.
 
 </div>
 
-akira-lite is the developer edition of akira. Where akira is a full autonomous
-offensive agent, akira-lite ships a single, focused skill: `/security-review`.
-It is built for recall. The goal is to catch as much as possible in the code you
-just wrote, then rank it so the noise stays manageable.
+## Quick start
 
-## How it stays hard (three layers)
-
-Each layer catches what the others miss:
-
-1. Deterministic scanners for ground truth (semgrep, gitleaks/trufflehog,
-   osv-scanner/npm audit/pip-audit, trivy/checkov).
-2. Cross-file taint reasoning, source to sink, for the flows scanners miss.
-3. A missing-control audit for the access-control and logic bugs no scanner sees.
-
-Then it merges everything and reports by confidence tier.
-
-## What makes it high-recall, not just noisy
-
-- Nothing is silently dropped. Every finding gets a tier: Confirmed, Likely, or
-  Needs-verification. Only pure no-impact noise is suppressed, and it is counted,
-  not hidden.
-- Nothing is silently skipped. A missing scanner is a reported coverage gap. Files
-  not reviewed are listed. Every entry point is marked traced or not-traced by
-  name before the report is emitted.
-- Quick mode auto-escalates to a deep component review when the diff touches auth,
-  access control, or a data boundary, so it does not miss cross-file logic bugs.
-
-## Lightweight by design
-
-High recall does not mean expensive. The hybrid pattern (deterministic scanners
-plus LLM reasoning only where it is needed) runs at a fraction of the tokens of a
-model reading everything itself. akira-lite keeps it light by:
-
-- letting scanners (subprocesses, zero model tokens) do the bulk of detection,
-- preferring a code graph when available (e.g. codegraph): it answers "who calls
-  this", "what does this reach", and "trace source to sink" as near-zero-token
-  queries instead of file reads, which is the biggest single token saving,
-- reading narrowly (a finding's region and its call chain, never whole files),
-- deriving severity from a class table instead of re-reasoning it,
-- budgeting and triaging deep-mode work by risk, and delegating bulk reads to a
-  subagent when one is available.
-
-Parallelism (scanners run concurrently) cuts wall-clock time; the token savings
-come from reading less, not from threading.
-
-## Two modes, one skill
-
-- Quick (default): fast pre-push review of your current diff.
-- Deep: exhaustive audit of a component or the whole repo. Triggered by "audit",
-  "deep review", or naming a path.
-
-## Install
-
-Plugin marketplace (recommended):
-
-```
+```bash
+# 1. install (plugin marketplace)
 /plugin marketplace add kalpmodi/akira-lite
 /plugin install akira-lite@akira-lite
+
+# 2. run it
+/security-review              # quick: reviews your current diff
+deep security review of src/  # deep: audits a component or the whole repo
 ```
 
-Drop-in skill (Claude Code, and any agent that reads `./skills`):
+Plain language works too: "is this safe to merge?", "audit this for security".
+To apply a fix afterwards: "fix the critical one".
+
+Drop-in install (any agent that reads `./skills`, no marketplace):
 
 ```bash
 git clone https://github.com/kalpmodi/akira-lite.git
 cp -r akira-lite/skills/security-review ~/.claude/skills/
 ```
 
-For full recall, install the deterministic layer:
+## What you get
+
+Findings ranked by confidence, led by a coverage ledger so blind spots are visible:
 
 ```
-semgrep      pipx install semgrep      # or: brew install semgrep
-gitleaks     brew install gitleaks
-osv-scanner  brew install osv-scanner
-trivy        brew install trivy
-pip-audit    pipx install pip-audit
+## Security review: src/  [mode: deep]
+Coverage ledger
+- Tools:  gitleaks ok | trivy ok | semgrep BROKEN | osv-scanner MISSING
+- Layers: SAST degraded | secrets ok | IaC ok | deps degraded
+- Code graph: ok    Entry points: 18/18 traced    Files: 22 | skipped: 0
+
+### [HIGH][Confirmed] No auth on internal API
+- File: web/api.py:216   Class: broken access control
+- Path: every /api/* route is served with no auth check -> org data is readable.
+- Fix: add a fail-closed auth dependency on the router. <snippet>
+
+### [MEDIUM][Needs-verification] Session token has no identity
+- To verify: confirm whether the upstream gate enforces per-user auth.
+
+Top fix: add fail-closed auth to the internal API.
+SAST degraded: `pipx reinstall semgrep`, then re-run for full coverage.
 ```
 
-## Use
+## How it works
 
+Three layers, each catching what the others miss:
+
+| Layer | Catches | Cost |
+|---|---|---|
+| Deterministic scanners | known signatures, secrets, CVEs, IaC misconfig | zero model tokens (subprocess) |
+| Cross-file taint | source-to-sink flows scanners can't follow | narrow reads only |
+| Missing-control audit | access-control and logic bugs no scanner sees | reasoning only |
+
+Every finding is tiered, never deleted:
+
+| Tier | Meaning |
+|---|---|
+| Confirmed | concrete source-to-sink path or a verified scanner hit |
+| Likely | strong indicator, one gap in the proof (says what confirms it) |
+| Needs-verification | suspicious, guard may be elsewhere (says what to check) |
+
+## Why it stays lightweight
+
+High recall does not mean expensive. The hybrid pattern (scanners do the bulk, the
+model reasons only where it must) runs at a fraction of the tokens of a model
+reading everything itself:
+
+- scanners (subprocesses) cost zero model tokens,
+- a code graph (e.g. codegraph), when present, answers "who calls this / what does
+  this reach / trace source to sink" as near-zero-token queries instead of reads,
+- it reads narrowly (a finding's region and its call chain, never whole files),
+- deep mode budgets and triages by risk, and delegates bulk reads to a subagent.
+
+Parallelism cuts wall-clock time; the token savings come from reading less.
+
+## Modes
+
+- Quick (default): fast pre-push review of your diff. Auto-escalates to a deep
+  component review when the diff touches auth, access control, or a data boundary.
+- Deep: exhaustive audit of a component or repo. Triggered by "audit"/"deep" or a path.
+
+## Full recall (optional tools)
+
+The review runs without these, but installs the deterministic layer for full recall:
+
+```bash
+pipx install semgrep pip-audit checkov
+brew install gitleaks trufflehog osv-scanner trivy
 ```
-/security-review              # quick, on your diff
-deep security review of src/  # exhaustive audit of a path
-```
 
-Or in plain language: "is this safe to merge?", "audit this for security".
-Then, to apply fixes: "fix the critical one".
+If a tool is missing or broken, the review still completes and tells you the exact
+one-liner to restore that layer, then re-run.
 
-## License
+## Security and license
 
-MIT. See [LICENSE](LICENSE).
+- How to use it safely and how to report an issue: [SECURITY.md](SECURITY.md).
+- MIT. See [LICENSE](LICENSE).
