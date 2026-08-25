@@ -28,13 +28,21 @@ recall first, and manages noise with tiering, not by deleting findings.
 
 ## Step 0: Tool inventory (always runs first, always printed)
 
-Detect the deterministic layer. Print one availability line before anything else.
+Detect the deterministic layer. Presence is not enough: a tool that is installed
+but broken (wrong deps, no rules, needs login) reports a working layer while
+producing nothing. Smoke-test each tool by running it, and mark it found only if
+it actually executes.
 
 ```bash
 for t in semgrep gitleaks trufflehog osv-scanner trivy checkov pip-audit npm; do
-  if command -v "$t" >/dev/null 2>&1; then echo "$t: found"; else echo "$t: MISSING"; fi
+  if ! command -v "$t" >/dev/null 2>&1; then echo "$t: MISSING"; continue; fi
+  if "$t" --version >/dev/null 2>&1; then echo "$t: ok"; else echo "$t: BROKEN"; fi
 done
 ```
+
+Treat BROKEN exactly like MISSING in the ledger: it is a degraded layer, not a
+working one. If the smoke test passes but a real scan errors out mid-run, downgrade
+that tool to BROKEN in the ledger too and continue with the other layers.
 
 - Map tools to the layer they cover: SAST = semgrep; secrets = gitleaks or
   trufflehog; dependencies = osv-scanner or `npm audit` or pip-audit; IaC/config
@@ -183,8 +191,8 @@ Findings only (no edits). Lead with the ledger so blind spots are visible.
 ## Security review: <scope>  [mode: quick|deep, escalated: yes/no]
 
 Coverage ledger
-- Tools:   semgrep found | gitleaks MISSING | osv-scanner found | trivy MISSING
-- Layers:  SAST ok | secrets DEGRADED (no scanner) | deps ok | IaC DEGRADED
+- Tools:   semgrep BROKEN | gitleaks ok | osv-scanner MISSING | trivy ok
+- Layers:  SAST DEGRADED (scanner broken) | secrets ok | deps DEGRADED (no scanner) | IaC ok
 - Entry points: 18/18 traced   (or: 16/18, untraced: worker.py:consume [no repro path])
 - Files reviewed: <n> | skipped: <list + why>
 - Suppressed (no-impact): <n>
