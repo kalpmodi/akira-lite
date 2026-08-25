@@ -2,68 +2,78 @@
 
 # akira-lite
 
-One skill. Security-review your own code before you push.
+One skill. A titanium, high-recall security review a developer can actually run.
 
 </div>
 
 akira-lite is the developer edition of akira. Where akira is a full autonomous
-offensive agent, akira-lite ships a single, focused skill any developer can use:
-`/security-review`. It reviews the code you just wrote, finds real exploitable
-bugs, filters out the noise, and hands you the fix.
+offensive agent, akira-lite ships a single, focused skill: `/security-review`.
+It is built for recall. The goal is to catch as much as possible in the code you
+just wrote, then rank it so the noise stays manageable.
 
-## What it does
+## How it stays hard (three layers)
 
-- Reviews your current git diff by default (fast, cheap, relevant to the change).
-- Focuses on the bug classes developers actually introduce: broken access control
-  and IDOR, injection, auth gaps, SSRF, leaked secrets, weak crypto, XSS, unsafe
-  deserialization, and risky dependencies.
-- Verifies every finding before reporting it. If it cannot describe a concrete
-  exploit, it does not call it Critical.
-- Returns a prioritized report: severity, file:line, exploit scenario, and a fix.
-- Optional fix mode applies the change surgically when you ask.
+Each layer catches what the others miss:
 
-It is defensive. It complements SAST and dependency scanners by catching the
-authorization and logic flaws those tools miss.
+1. Deterministic scanners for ground truth (semgrep, gitleaks/trufflehog,
+   osv-scanner/npm audit/pip-audit, trivy/checkov).
+2. Cross-file taint reasoning, source to sink, for the flows scanners miss.
+3. A missing-control audit for the access-control and logic bugs no scanner sees.
+
+Then it merges everything and reports by confidence tier.
+
+## What makes it high-recall, not just noisy
+
+- Nothing is silently dropped. Every finding gets a tier: Confirmed, Likely, or
+  Needs-verification. Only pure no-impact noise is suppressed, and it is counted,
+  not hidden.
+- Nothing is silently skipped. A missing scanner is a reported coverage gap. Files
+  not reviewed are listed. Every entry point is marked traced or not-traced by
+  name before the report is emitted.
+- Quick mode auto-escalates to a deep component review when the diff touches auth,
+  access control, or a data boundary, so it does not miss cross-file logic bugs.
+
+## Two modes, one skill
+
+- Quick (default): fast pre-push review of your current diff.
+- Deep: exhaustive audit of a component or the whole repo. Triggered by "audit",
+  "deep review", or naming a path.
 
 ## Install
 
-Option A, plugin marketplace (recommended):
+Plugin marketplace (recommended):
 
 ```
 /plugin marketplace add kalpmodi/akira-lite
 /plugin install akira-lite@akira-lite
 ```
 
-Option B, drop-in skill (works in Claude Code, and any agent that reads `./skills`):
+Drop-in skill (Claude Code, and any agent that reads `./skills`):
 
 ```bash
 git clone https://github.com/kalpmodi/akira-lite.git
 cp -r akira-lite/skills/security-review ~/.claude/skills/
 ```
 
+For full recall, install the deterministic layer:
+
+```
+semgrep      pipx install semgrep      # or: brew install semgrep
+gitleaks     brew install gitleaks
+osv-scanner  brew install osv-scanner
+trivy        brew install trivy
+pip-audit    pipx install pip-audit
+```
+
 ## Use
 
-In your project, when you have changes staged or on a branch:
-
 ```
-/security-review
+/security-review              # quick, on your diff
+deep security review of src/  # exhaustive audit of a path
 ```
 
-Or in plain language:
-
-- "security review my changes before I push"
-- "is this safe to merge?"
-- "review src/api/ for security issues"
-
-Then, if you want the fixes applied:
-
-- "fix the critical one"
-
-## Why akira-lite
-
-- Best-of-the-best, kept small: one skill, no setup, no external services.
-- Signal over noise: it disproves its own findings before reporting them.
-- Shift-left: it runs on the diff, in the developer's own loop, before merge.
+Or in plain language: "is this safe to merge?", "audit this for security".
+Then, to apply fixes: "fix the critical one".
 
 ## License
 
