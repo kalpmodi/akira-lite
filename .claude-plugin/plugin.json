@@ -1,0 +1,7 @@
+{
+  "name": "akira-lite",
+  "version": "0.1.0",
+  "description": "One skill for developers: security-review your own code before you push. Diff-aware, false-positive filtered, prioritized fixes.",
+  "author": { "name": "akira" },
+  "skills": ["./skills/security-review"]
+}

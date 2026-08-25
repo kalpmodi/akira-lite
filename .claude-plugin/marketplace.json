@@ -1,0 +1,11 @@
+{
+  "name": "akira-lite",
+  "owner": { "name": "akira" },
+  "plugins": [
+    {
+      "name": "akira-lite",
+      "source": "./",
+      "description": "Developer security-review skill. Reviews your diff for real, exploitable bugs and returns fixes."
+    }
+  ]
+}
