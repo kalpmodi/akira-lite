@@ -33,6 +33,21 @@ Then it merges everything and reports by confidence tier.
 - Quick mode auto-escalates to a deep component review when the diff touches auth,
   access control, or a data boundary, so it does not miss cross-file logic bugs.
 
+## Lightweight by design
+
+High recall does not mean expensive. The hybrid pattern (deterministic scanners
+plus LLM reasoning only where it is needed) runs at a fraction of the tokens of a
+model reading everything itself. akira-lite keeps it light by:
+
+- letting scanners (subprocesses, zero model tokens) do the bulk of detection,
+- reading narrowly (a finding's region and its call chain, never whole files),
+- deriving severity from a class table instead of re-reasoning it,
+- budgeting and triaging deep-mode work by risk, and delegating bulk reads to a
+  subagent when one is available.
+
+Parallelism (scanners run concurrently) cuts wall-clock time; the token savings
+come from reading less, not from threading.
+
 ## Two modes, one skill
 
 - Quick (default): fast pre-push review of your current diff.
