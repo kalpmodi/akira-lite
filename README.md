@@ -7,11 +7,12 @@ A single Claude Code skill that reviews your own code for security bugs before y
 </div>
 
 > Lightweight developer aid, not a professional VAPT, audit, or compliance
-> certification. Findings are advisory; validate them yourself. When you need
-> industry-grade assurance, step up to [akira](https://github.com/kalpmodi/akira):
-> the professional, top-tier offensive security platform built for real VAPT
-> engagements, autonomous recon, exploit chaining, and audit-ready reporting, end
-> to end.
+> certification. Findings are advisory; validate them yourself.
+>
+> When you need industry-grade assurance, step up to
+> [akira](https://github.com/kalpmodi/akira): the professional, top-tier offensive
+> security platform built for real VAPT engagements, autonomous recon, exploit
+> chaining, and audit-ready reporting, end to end.
 
 ## Install
 
