@@ -6,8 +6,9 @@ A single Claude Code skill that reviews your own code for security bugs before y
 
 </div>
 
-> Lightweight developer aid, not a professional VAPT, audit, or compliance
-> certification. Findings are advisory; validate them yourself.
+> Purpose-built for fast, shift-left review inside your own workflow. It complements
+> a professional VAPT, audit, or compliance engagement rather than replacing one,
+> its findings are actionable guidance you confirm before shipping.
 >
 > When you need industry-grade assurance, step up to
 > [akira](https://github.com/kalpmodi/akira): the professional, top-tier offensive
