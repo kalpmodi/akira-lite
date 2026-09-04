@@ -1,2 +1,24 @@
-node_modules/
+# OS / editor
 .DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Node
+node_modules/
+
+# Python (eval fixtures are .py and stay tracked; ignore build + bytecode only)
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Local security-scan outputs (produced when running scanners in this repo)
+*.sarif
+trivy-results.*
+gl.json
+sg.json
+.semgrep/
