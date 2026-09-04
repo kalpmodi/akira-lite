@@ -6,15 +6,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Changed
-- Renamed the skill from `security-review` to `akira-review` to avoid a name
-  collision with Claude Code's built-in `/security-review` command. Install and
-  usage are now `/akira-review`.
-
 ## [0.1.0] - 2026-09-04
 
 ### Added
-- `security-review` skill: three-layer review (deterministic scanners, cross-file
+- `akira-review` skill: three-layer review (deterministic scanners, cross-file
   taint reasoning, missing-control audit) that is high-recall and token-light,
   reports findings by confidence tier (Confirmed / Likely / Needs-verification),
   and prints a coverage ledger.
