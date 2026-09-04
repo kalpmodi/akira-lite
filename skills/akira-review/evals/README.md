@@ -1,4 +1,4 @@
-# security-review evals
+# akira-review evals
 
 Measures whether the skill actually finds real vulnerabilities (recall) without
 flagging safe code (precision). Format follows Anthropic's skill-creator
@@ -40,7 +40,7 @@ Benchmark mode (recommended, gives baseline delta and variance):
 
 ```
 # with skill-creator installed; runs with_skill vs without_skill, N runs each
-run the skill-creator benchmark against skills/security-review using evals/evals.json
+run the skill-creator benchmark against skills/akira-review using evals/evals.json
 ```
 
 Trigger rate (separate harness): `triggering.json` is in the trigger-eval format
@@ -53,7 +53,7 @@ say "security review" and would trigger 100% by construction).
 Manual protocol (no tooling):
 
 1. For each eval, start a clean Claude Code session and `cd` into this skill's
-   directory (`skills/security-review/`) so the `evals/files/...` paths in the
+   directory (`skills/akira-review/`) so the `evals/files/...` paths in the
    prompts resolve.
 2. Paste the eval `prompt`. It points at the fixture under `evals/files/`.
 3. Score each `expectations[]` statement pass/fail against the output.

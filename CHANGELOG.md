@@ -6,6 +6,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- Renamed the skill from `security-review` to `akira-review` to avoid a name
+  collision with Claude Code's built-in `/security-review` command. Install and
+  usage are now `/akira-review`.
+
 ## [0.1.0] - 2026-09-04
 
 ### Added

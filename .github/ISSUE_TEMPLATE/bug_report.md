@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: The security-review skill behaved incorrectly (missed a bug, false-flagged safe code, or errored)
+about: The akira-review skill behaved incorrectly (missed a bug, false-flagged safe code, or errored)
 title: ""
 labels: bug
 assignees: ""
@@ -18,7 +18,7 @@ A clear description of the incorrect behavior.
 
 ## Minimal repro
 The smallest code or diff that reproduces it. If you can, paste it as a snippet so
-it could become an eval fixture under `skills/security-review/evals/`.
+it could become an eval fixture under `skills/akira-review/evals/`.
 
 ## Expected vs actual
 - Expected:

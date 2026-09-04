@@ -1,6 +1,6 @@
 ---
-name: security-review
-description: Use when a developer wants a hard, high-recall but token-light security review of their own code before committing, pushing, or opening a PR, or a full audit of a component/repo. Deterministic scanners do the bulk; the model reasons only about cross-file taint and missing controls; findings are reported by confidence tier with fixes. Triggers on "security review", "deep security review", "audit this for security", "is this safe to merge", "review my code for vulnerabilities", or "/security-review".
+name: akira-review
+description: Use when a developer wants a hard, high-recall but token-light security review of their own code before committing, pushing, or opening a PR, or a full audit of a component/repo. Deterministic scanners do the bulk; the model reasons only about cross-file taint and missing controls; findings are reported by confidence tier with fixes. Triggers on "security review", "deep security review", "audit this for security", "is this safe to merge", "review my code for vulnerabilities", or "/akira-review".
 ---
 
 # Security Review (akira-lite)

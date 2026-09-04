@@ -24,7 +24,7 @@ jobs:
                   json.load(open(f))
               except Exception as e:
                   print(f"::error file={f}::invalid JSON: {e}"); ok = False
-          e = json.load(open("skills/security-review/evals/evals.json"))
+          e = json.load(open("skills/akira-review/evals/evals.json"))
           if not (e.get("skill_name") and isinstance(e.get("evals"), list) and e["evals"]):
               print("::error::evals.json missing skill_name or non-empty evals[]"); ok = False
           sys.exit(0 if ok else 1)

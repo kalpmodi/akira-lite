@@ -1,6 +1,6 @@
 {
-  "skill_name": "security-review",
-  "description": "Recall and precision evals for the security-review skill. Positives (01-09) plant a known CWE; traps (10-12) are safe-but-tempting code that must not be flagged. Fixtures contain no answer-leaking comments; ground truth lives in GROUND_TRUTH.md.",
+  "skill_name": "akira-review",
+  "description": "Recall and precision evals for the akira-review skill. Positives (01-09) plant a known CWE; traps (10-12) are safe-but-tempting code that must not be flagged. Fixtures contain no answer-leaking comments; ground truth lives in GROUND_TRUTH.md.",
   "evals": [
     {
       "id": 1,

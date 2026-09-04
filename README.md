@@ -33,13 +33,13 @@ Drop-in alternative:
 
 ```
 git clone https://github.com/kalpmodi/akira-lite.git
-cp -r akira-lite/skills/security-review ~/.claude/skills/
+cp -r akira-lite/skills/akira-review ~/.claude/skills/
 ```
 
 ## Use
 
 ```
-/security-review              # reviews your current diff
+/akira-review              # reviews your current diff
 deep security review of src/  # audits a component or repo
 ```
 

@@ -1,6 +1,6 @@
 # Security Policy
 
-akira<sup>LITE</sup> is a single Claude skill (`/security-review`) that reviews source code
+akira<sup>LITE</sup> is a single Claude skill (`/akira-review`) that reviews source code
 for vulnerabilities. This document covers how to run it safely and how to report a
 security issue in akira<sup>LITE</sup> itself.
 
@@ -46,7 +46,7 @@ fixed on the default branch and noted in the commit history.
 
 ## Scope
 
-- In scope: the skill instructions (`skills/security-review/SKILL.md`), the plugin
+- In scope: the skill instructions (`skills/akira-review/SKILL.md`), the plugin
   manifests, and anything that changes what the review does or reports.
 - Out of scope: vulnerabilities in the third-party scanners themselves (report
   those upstream), and findings the skill produces about your code (those are

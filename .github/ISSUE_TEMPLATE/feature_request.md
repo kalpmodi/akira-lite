@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an improvement to the security-review skill
+about: Suggest an improvement to the akira-review skill
 title: ""
 labels: enhancement
 assignees: ""

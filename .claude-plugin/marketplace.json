@@ -1,12 +1,12 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "akira-lite",
-  "description": "Developer security-review skill: review your own code for real, exploitable bugs before you push.",
+  "description": "Developer security review skill: review your own code for real, exploitable bugs before you push.",
   "owner": { "name": "kalpmodi", "url": "https://github.com/kalpmodi" },
   "plugins": [
     {
       "name": "akira-lite",
-      "description": "Developer security-review skill. Reviews your diff for real, exploitable bugs and returns fixes.",
+      "description": "Developer security review skill. Reviews your diff for real, exploitable bugs and returns fixes.",
       "author": { "name": "kalpmodi" },
       "category": "security",
       "source": "./",

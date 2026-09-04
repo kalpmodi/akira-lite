@@ -1,16 +1,16 @@
 # Contributing
 
-akira<sup>LITE</sup> is one skill file: `skills/security-review/SKILL.md`. Keep changes small
+akira<sup>LITE</sup> is one skill file: `skills/akira-review/SKILL.md`. Keep changes small
 and tested.
 
 ## Making a change
 
 1. Fork and branch.
-2. Edit `skills/security-review/SKILL.md`.
+2. Edit `skills/akira-review/SKILL.md`.
 3. Install your copy and run it against real code:
    ```
-   cp -r skills/security-review ~/.claude/skills/
-   /security-review
+   cp -r skills/akira-review ~/.claude/skills/
+   /akira-review
    ```
 4. In the PR, describe the before/after behavior you saw on real code.
 
