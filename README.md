@@ -1,6 +1,9 @@
 <div align="center">
 
-<img src="assets/wordmark.png" alt="akira-lite" width="440">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/wordmark-dark.png">
+  <img alt="akira-lite" src="assets/wordmark-light.png" width="440">
+</picture>
 
 A single Claude Code skill that reviews your own code for security bugs before you push.
 
