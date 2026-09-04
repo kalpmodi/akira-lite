@@ -1,0 +1,50 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate JSON (manifests + evals)
+        run: |
+          python - <<'PY'
+          import json, sys, glob
+          ok = True
+          for f in glob.glob("**/*.json", recursive=True):
+              try:
+                  json.load(open(f))
+              except Exception as e:
+                  print(f"::error file={f}::invalid JSON: {e}"); ok = False
+          e = json.load(open("skills/security-review/evals/evals.json"))
+          if not (e.get("skill_name") and isinstance(e.get("evals"), list) and e["evals"]):
+              print("::error::evals.json missing skill_name or non-empty evals[]"); ok = False
+          sys.exit(0 if ok else 1)
+          PY
+
+      - name: Validate SKILL.md frontmatter
+        run: |
+          python - <<'PY'
+          import sys, re, glob
+          ok = True
+          files = glob.glob("skills/**/SKILL.md", recursive=True)
+          if not files:
+              print("::error::no SKILL.md found"); sys.exit(1)
+          for f in files:
+              m = re.match(r"^---\n(.*?)\n---", open(f).read(), re.S)
+              if not m:
+                  print(f"::error file={f}::missing YAML frontmatter"); ok = False; continue
+              fm = m.group(1)
+              for key in ("name:", "description:"):
+                  if key not in fm:
+                      print(f"::error file={f}::frontmatter must include {key}"); ok = False
+          sys.exit(0 if ok else 1)
+          PY
