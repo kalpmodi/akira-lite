@@ -1,6 +1,6 @@
 # Contributing
 
-akira-lite is one skill file: `skills/security-review/SKILL.md`. Keep changes small
+akira<sup>LITE</sup> is one skill file: `skills/security-review/SKILL.md`. Keep changes small
 and tested.
 
 ## Making a change

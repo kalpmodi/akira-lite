@@ -1,10 +1,10 @@
 # Security Policy
 
-akira-lite is a single Claude skill (`/security-review`) that reviews source code
+akira<sup>LITE</sup> is a single Claude skill (`/security-review`) that reviews source code
 for vulnerabilities. This document covers how to run it safely and how to report a
-security issue in akira-lite itself.
+security issue in akira<sup>LITE</sup> itself.
 
-## What akira-lite is (and is not)
+## What akira<sup>LITE</sup> is (and is not)
 
 - It is defensive. It reviews your own code before you ship it. It is not a pentest
   of a live target and it does not attack anything.
@@ -16,7 +16,7 @@ security issue in akira-lite itself.
 
 ## Safe use
 
-- Review trusted code only. Like any LLM-driven review tool, akira-lite is not
+- Review trusted code only. Like any LLM-driven review tool, akira<sup>LITE</sup> is not
   hardened against prompt injection. Source files (or a malicious PR) can contain
   text crafted to manipulate the model. Do not run it on untrusted code you would
   not otherwise open and read.
@@ -29,7 +29,7 @@ security issue in akira-lite itself.
 - Do not paste secrets. The skill scans for secrets in your code; it does not need
   you to provide real credentials.
 
-## Reporting a vulnerability in akira-lite
+## Reporting a vulnerability in akira<sup>LITE</sup>
 
 If you find a security issue in the skill itself (for example, a prompt-injection
 bypass that suppresses findings, or unsafe command construction in the skill's
@@ -42,7 +42,7 @@ instructions):
 3. Include the skill version (commit), what you did, and the impact.
 
 You can expect an initial response within a few days. Confirmed issues will be
-fixed on `main` and noted in the commit history.
+fixed on the default branch and noted in the commit history.
 
 ## Scope
 
@@ -50,4 +50,4 @@ fixed on `main` and noted in the commit history.
   manifests, and anything that changes what the review does or reports.
 - Out of scope: vulnerabilities in the third-party scanners themselves (report
   those upstream), and findings the skill produces about your code (those are
-  output, not a vulnerability in akira-lite).
+  output, not a vulnerability in akira<sup>LITE</sup>).
