@@ -1,0 +1,151 @@
+{
+  "skill_name": "security-review",
+  "description": "Recall and precision evals for the security-review skill. Positives (01-09) plant a known CWE; traps (10-12) are safe-but-tempting code that must not be flagged. Fixtures contain no answer-leaking comments; ground truth lives in GROUND_TRUTH.md.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "SQL injection (string concatenation)",
+      "prompt": "Do a deep security review of the code in evals/files/01-sqli/. List each finding with its class, file, severity, and confidence tier.",
+      "expected_output": "Reports a Confirmed SQL injection where the id parameter is concatenated into the query.",
+      "files": ["evals/files/01-sqli/app.py"],
+      "expectations": [
+        "Reports a SQL injection (SQLi) finding in app.py",
+        "The SQL injection is rated Confirmed and High or Critical severity",
+        "The finding identifies the query built by string-concatenating request.args id",
+        "The output includes a coverage ledger and tiered findings"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "OS command injection (shell=True)",
+      "prompt": "Do a deep security review of the code in evals/files/02-command-injection/. List each finding with class, file, severity, and confidence.",
+      "expected_output": "Reports a Confirmed OS command injection via shell=True with concatenated host input.",
+      "files": ["evals/files/02-command-injection/run.py"],
+      "expectations": [
+        "Reports an OS command injection finding in run.py",
+        "The finding references subprocess with shell=True and the concatenated host parameter",
+        "The command injection is rated Confirmed and High or Critical severity"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "IDOR / broken object level authorization",
+      "prompt": "Do a deep security review of the code in evals/files/03-idor/. List each finding with class, file, severity, and confidence.",
+      "expected_output": "Reports broken access control / IDOR: any order id is returned with no ownership check.",
+      "files": ["evals/files/03-idor/app.py"],
+      "expectations": [
+        "Reports an IDOR or broken access control finding in app.py",
+        "The finding notes there is no ownership or authorization check tying the order to the current user",
+        "The finding is rated High severity"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Hardcoded credentials",
+      "prompt": "Do a deep security review of the code in evals/files/04-hardcoded-secret/. List each finding with class, file, severity, and confidence.",
+      "expected_output": "Reports hardcoded credentials (DB password and internal API token) in config.py.",
+      "files": ["evals/files/04-hardcoded-secret/config.py"],
+      "expectations": [
+        "Reports a hardcoded secret or credential finding in config.py",
+        "The finding identifies at least the DB_PASSWORD or INTERNAL_API_TOKEN as a hardcoded credential",
+        "The finding is rated Confirmed"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "SSRF (server-side request forgery)",
+      "prompt": "Do a deep security review of the code in evals/files/05-ssrf/. List each finding with class, file, severity, and confidence.",
+      "expected_output": "Reports SSRF: the server fetches a user-supplied URL with no allowlist.",
+      "files": ["evals/files/05-ssrf/fetch.py"],
+      "expectations": [
+        "Reports an SSRF finding in fetch.py",
+        "The finding notes the fetched URL comes from user input with no allowlist or validation",
+        "The finding is rated Confirmed and High severity"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "DOM-based XSS",
+      "prompt": "Do a deep security review of the code in evals/files/06-xss/. List each finding with class, file, severity, and confidence.",
+      "expected_output": "Reports XSS: user-controlled name is written to innerHTML.",
+      "files": ["evals/files/06-xss/render.js"],
+      "expectations": [
+        "Reports a cross-site scripting (XSS) finding in render.js",
+        "The finding identifies user-controlled input written to innerHTML",
+        "The finding is rated Confirmed"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Insecure deserialization",
+      "prompt": "Do a deep security review of the code in evals/files/07-deserialization/. List each finding with class, file, severity, and confidence.",
+      "expected_output": "Reports insecure deserialization: pickle.loads on untrusted request body.",
+      "files": ["evals/files/07-deserialization/loader.py"],
+      "expectations": [
+        "Reports an insecure deserialization finding in loader.py",
+        "The finding references pickle.loads applied to untrusted request data",
+        "The finding is rated Confirmed and High or Critical severity"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Weak password hashing (MD5)",
+      "prompt": "Do a deep security review of the code in evals/files/08-weak-crypto/. List each finding with class, file, severity, and confidence.",
+      "expected_output": "Reports weak cryptography: MD5 used to hash passwords without a salt.",
+      "files": ["evals/files/08-weak-crypto/auth.py"],
+      "expectations": [
+        "Reports a weak cryptography finding in auth.py",
+        "The finding identifies MD5 used for password hashing (fast, unsalted) as the problem",
+        "The finding recommends a password hashing function such as bcrypt, scrypt, or argon2"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Cross-file SQL injection (taint across files)",
+      "prompt": "Do a deep security review of the code in evals/files/09-crossfile-sqli/. List each finding with class, file, severity, and confidence.",
+      "expected_output": "Reports SQL injection traced from the acct parameter in routes.py into the sink in store.py.",
+      "files": ["evals/files/09-crossfile-sqli/routes.py", "evals/files/09-crossfile-sqli/store.py"],
+      "expectations": [
+        "Reports a SQL injection finding for the acct parameter",
+        "The finding names BOTH the source (request.args.get('acct') in routes.py) and the sink (con.execute in store.py) as one connected data path; a finding that only points at store.py without connecting it to the routes.py source does NOT pass",
+        "The SQL injection is rated Confirmed and High or Critical severity"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "TRAP: parameterized query (safe)",
+      "prompt": "Do a deep security review of the code in evals/files/10-safe-parameterized/. List each finding with class, file, severity, and confidence.",
+      "expected_output": "No SQL injection: the query is parameterized. Any mention must not be a Confirmed SQLi.",
+      "files": ["evals/files/10-safe-parameterized/db.py"],
+      "expectations": [
+        "Affirmatively states that db.py was reviewed (it does not skip or error on the file)",
+        "Does NOT report a Confirmed or High SQL injection vulnerability in db.py",
+        "Explicitly explains the query is safe because it uses a parameterized placeholder (?) with a params tuple"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "TRAP: authorized object access (safe)",
+      "prompt": "Do a deep security review of the code in evals/files/11-safe-authz/. List each finding with class, file, severity, and confidence.",
+      "expected_output": "No IDOR: an ownership check gates the order. Any mention must not be a Confirmed IDOR.",
+      "files": ["evals/files/11-safe-authz/app.py"],
+      "expectations": [
+        "Affirmatively states that app.py was reviewed (it does not skip or error on the file)",
+        "Does NOT report a Confirmed or High IDOR / broken access control vulnerability in app.py",
+        "Explicitly identifies the ownership check comparing the order's user_id to the session user as the control that makes it safe"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "TRAP: bcrypt password hashing (safe)",
+      "prompt": "Do a deep security review of the code in evals/files/12-safe-bcrypt/. List each finding with class, file, severity, and confidence.",
+      "expected_output": "No weak-crypto finding: bcrypt with a per-hash salt is used correctly.",
+      "files": ["evals/files/12-safe-bcrypt/auth.py"],
+      "expectations": [
+        "Affirmatively states that auth.py was reviewed (it does not skip or error on the file)",
+        "Does NOT report a Confirmed or High weak-cryptography vulnerability in auth.py",
+        "Explicitly identifies bcrypt with gensalt as an appropriate, salted password hashing choice"
+      ]
+    }
+  ]
+}

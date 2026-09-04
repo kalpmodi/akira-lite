@@ -1,0 +1,13 @@
+[
+  { "query": "is this safe to merge?", "should_trigger": true },
+  { "query": "can you review my changes for security issues before I push?", "should_trigger": true },
+  { "query": "audit this module for vulnerabilities", "should_trigger": true },
+  { "query": "check this diff for security bugs", "should_trigger": true },
+  { "query": "do a deep security review of the api package", "should_trigger": true },
+  { "query": "review my code for vulnerabilities before I open a PR", "should_trigger": true },
+  { "query": "what does this function do?", "should_trigger": false },
+  { "query": "rename this variable across the file", "should_trigger": false },
+  { "query": "write a unit test for this function", "should_trigger": false },
+  { "query": "add a docstring to this class", "should_trigger": false },
+  { "query": "why is my build failing?", "should_trigger": false }
+]
