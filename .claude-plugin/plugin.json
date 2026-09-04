@@ -1,7 +1,20 @@
 {
   "name": "akira-lite",
   "version": "0.1.0",
-  "description": "One skill for developers: security-review your own code before you push. Diff-aware, false-positive filtered, prioritized fixes.",
-  "author": { "name": "akira" },
+  "description": "One skill for developers: security-review your own code before you push. High-recall, token-light, false-positive filtered, with prioritized fixes.",
+  "author": { "name": "kalpmodi", "url": "https://github.com/kalpmodi" },
+  "homepage": "https://github.com/kalpmodi/akira-lite",
+  "repository": "https://github.com/kalpmodi/akira-lite",
+  "license": "MIT",
+  "keywords": [
+    "security",
+    "appsec",
+    "sast",
+    "code-review",
+    "vulnerability",
+    "secrets",
+    "claude-code",
+    "developer-tools"
+  ],
   "skills": ["./skills/security-review"]
 }
