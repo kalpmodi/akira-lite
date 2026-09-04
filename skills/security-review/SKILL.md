@@ -65,14 +65,16 @@ Recommend-and-rerun rule: whenever any tool is MISSING or BROKEN, do NOT block.
 Complete the review with the layers that work, then, at the end, tell the developer
 exactly which layer was degraded, the one-liner to fix it, and that re-running the
 scan afterwards gives full coverage. If every tool is present and working, say
-nothing about installs. Install one-liners (offer, never auto-install):
-`pipx install semgrep pip-audit checkov`,
-`brew install gitleaks trufflehog osv-scanner trivy`.
-For a broken (not missing) tool, recommend a reinstall, e.g. `pipx reinstall semgrep`.
+nothing about installs. Install one-liners and the exact per-tool commands are in
+`references/scanners.md`; for a broken tool, recommend a reinstall (e.g.
+`pipx reinstall semgrep`).
 
 ## Step 1: Mode, scope, budget
 - Quick (default): `git diff HEAD`; if empty, diff against the repo's default
   branch (main, master, or whatever `origin/HEAD` points to). Cheap.
+- Non-git target: if there is no `.git` or `git` is unavailable, there is no diff.
+  Review the whole tree in deep mode, or a path the user names, and note "no git:
+  reviewing <path>" in the ledger.
 - Deep: a component or repo. Triggered by "audit"/"deep" or a named path.
 - Auto-escalate: if the diff touches auth, access control, session, or a data
   boundary (routes, object lookups, ORM, permission checks), escalate to deep FOR
@@ -87,10 +89,9 @@ A. Map surface. List every entry point in scope BY NAME: routes/resolvers,
    template renders, outbound HTTP, auth boundaries, raw SQL. With a code graph,
    query these by name instead of reading files. This list is the termination
    condition for pass F.
-B. Scan (subprocesses, run in parallel, keep all raw hits):
-   `semgrep --config auto --json`, `gitleaks detect`/`trufflehog`,
-   `osv-scanner`/`npm audit`/`pip-audit`, `trivy fs`/`checkov`. Scope to changed
-   files in quick mode, to the path in deep mode.
+B. Scan (subprocesses, run in parallel, keep all raw hits). Exact commands per
+   layer (SAST, secrets, deps, IaC) are in `references/scanners.md`. Scope to
+   changed files in quick mode, to the path in deep mode.
 C. Taint. For each entry point (top-ranked first), trace untrusted input source
    to sink across files. With a code graph, trace source to sink in one call
    (it bridges dynamic hops grep misses), then read only the bodies on that path;
@@ -104,19 +105,15 @@ F. Completeness gate. Mark every pass-A entry point traced or not-traced by name
    Loop until the list is exhausted or the budget is hit. Report "N/M traced".
 
 ## Step 3: What to look for
-- Access control: IDOR/BOLA, missing role check, mass assignment, excessive data
-  exposure. (Highest priority; scanners miss these.)
-- Injection: SQL/NoSQL, command, LDAP/XPath, SSTI, XXE, path traversal.
-- Auth/session: missing auth middleware, weak/again unverified JWT, insecure session.
-- SSRF and outbound fetch from user input; cloud metadata reachability.
-- Secrets: hardcoded keys/tokens/passwords, secrets in logs/responses/history.
-- Crypto: weak password hash (MD5/SHA1), missing salt, predictable randomness.
-- Deserialization: pickle, yaml.load, native deserializers, XXE.
-- Web/config: XSS (reflected/stored/DOM), CSRF on state change, permissive CORS,
-  debug mode, verbose errors, missing headers.
-- Supply chain/IaC: unpinned/abandoned/typosquat deps, Docker/k8s/terraform/CI misconfig.
-- AI (if it builds prompts/calls an LLM): prompt injection, insecure output
-  handling, excessive tool/agent access.
+Audit against the full checklist in `references/checklist.md` (OWASP Web/API/LLM +
+ASVS controls, each mapped to a CWE). The classes, highest-impact first:
+- Broken access control: IDOR/BOLA, missing role check, mass assignment, excessive
+  data exposure. Top priority; scanners miss these.
+- Then: injection (SQL/command/SSTI/XXE/path traversal), auth/session gaps, SSRF,
+  hardcoded secrets, weak crypto, unsafe deserialization, XSS/CSRF/CORS/config,
+  supply-chain and IaC misconfig, and AI/LLM (prompt injection, unsafe output).
+
+Load `references/checklist.md` for the per-class hints and CWE mappings.
 
 ## Step 4: Tier and severity
 Tier every finding; delete nothing real:
