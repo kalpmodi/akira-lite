@@ -70,5 +70,7 @@ brew install gitleaks trufflehog osv-scanner trivy
 ## Links
 
 - [CONTRIBUTING.md](CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 - [SECURITY.md](SECURITY.md)
+- [CHANGELOG.md](CHANGELOG.md)
 - License: MIT ([LICENSE](LICENSE))
