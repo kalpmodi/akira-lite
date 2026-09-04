@@ -7,6 +7,10 @@
 
 A single Claude Code skill that reviews your own code for security bugs before you push.
 
+[![License: MIT](https://img.shields.io/github/license/kalpmodi/akira-lite)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/kalpmodi/akira-lite?sort=semver)](https://github.com/kalpmodi/akira-lite/releases)
+[![Validate](https://img.shields.io/github/actions/workflow/status/kalpmodi/akira-lite/validate.yml?label=validate)](https://github.com/kalpmodi/akira-lite/actions/workflows/validate.yml)
+
 </div>
 
 > Purpose-built for fast, shift-left review inside your own workflow. It complements
