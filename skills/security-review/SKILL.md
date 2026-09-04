@@ -71,7 +71,8 @@ nothing about installs. Install one-liners (offer, never auto-install):
 For a broken (not missing) tool, recommend a reinstall, e.g. `pipx reinstall semgrep`.
 
 ## Step 1: Mode, scope, budget
-- Quick (default): `git diff HEAD` (fallback `git diff main...HEAD`). Cheap.
+- Quick (default): `git diff HEAD`; if empty, diff against the repo's default
+  branch (main, master, or whatever `origin/HEAD` points to). Cheap.
 - Deep: a component or repo. Triggered by "audit"/"deep" or a named path.
 - Auto-escalate: if the diff touches auth, access control, session, or a data
   boundary (routes, object lookups, ORM, permission checks), escalate to deep FOR
