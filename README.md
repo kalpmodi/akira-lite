@@ -1,6 +1,6 @@
 <div align="center">
 
-# akira-lite
+<img src="assets/wordmark.png" alt="akira-lite" width="440">
 
 A single Claude Code skill that reviews your own code for security bugs before you push.
 
